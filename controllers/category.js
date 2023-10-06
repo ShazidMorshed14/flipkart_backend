@@ -24,7 +24,7 @@ const createCategoryTree = (categories, parentId = null) => {
       type: cat.type,
       categoryImage: cat.categoryImage,
       parentId: cat.parentId,
-      createdBy: cat.createdBy,
+      //createdBy: cat.createdBy,
       children: createCategoryTree(categories, cat._id),
     });
   }
