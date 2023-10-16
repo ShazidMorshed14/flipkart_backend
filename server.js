@@ -21,10 +21,12 @@ const adminAuthRoutes = require("./routes/admin/auth");
 //other routes
 const authRoutes = require("./routes/auth");
 const categoryRoutes = require("./routes/category");
+const productRoutes = require("./routes/product");
 
 app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/customer/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
+app.use("/api/v1/product", productRoutes);
 
 const start = async () => {
   try {

@@ -56,6 +56,12 @@ const createCategory = async (req, res) => {
   try {
     const { name, type, categoryImage, parentId } = req.body;
 
+    const checkCategory = await Category.findOne({ name: req.body.name });
+
+    if (checkCategory) {
+      return res.status(409).json({ message: "Same Category Already Exists!" });
+    }
+
     const categoryObj = {
       name: name,
       slug: `${slugify(name)}-${generateUniqueCode()}`,
