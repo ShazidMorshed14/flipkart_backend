@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const multer = require("multer");
 
 require("dotenv").config();
 
@@ -9,6 +10,19 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Multer configuration
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+      cb(null, true);
+    } else {
+      cb(new Error("Unsupported file format"), false);
+    }
+  },
+});
 
 //importing mongodb connection function
 const connecDB = require("./db/connect");
@@ -23,10 +37,21 @@ const authRoutes = require("./routes/auth");
 const categoryRoutes = require("./routes/category");
 const productRoutes = require("./routes/product");
 
+//importing the file upload controller
+const fileUploader = require("./controllers/file-upload");
+const { isAuth, isAdmin } = require("./middlewares/auth");
+
 app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/customer/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.post(
+  "/api/v1/files/upload",
+  isAuth,
+  isAdmin,
+  upload.array("images", 5),
+  fileUploader.uploadImages
+);
 
 const start = async () => {
   try {

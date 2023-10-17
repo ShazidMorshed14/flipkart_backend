@@ -20,7 +20,7 @@ const getAllProduct = async (req, res) => {
     });
   } catch (error) {
     console.error(`Error fetching ${MODEL_NAME}:`, error);
-    res.status(500).json({ meassge: `Error fetching ${MODEL_NAME}` });
+    return res.status(500).json({ meassge: `Error fetching ${MODEL_NAME}` });
   }
 };
 
