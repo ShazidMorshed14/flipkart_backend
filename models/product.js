@@ -28,7 +28,7 @@ const productSchema = new mongoose.Schema(
     offer: {
       type: Number,
     },
-    productPictures: [{ img: { type: String } }],
+    productPictures: [{ _id: { type: String }, img: { type: String } }],
     reviews: [
       {
         userId: { type: ObjectId, ref: "User" },

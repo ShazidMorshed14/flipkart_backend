@@ -1,6 +1,9 @@
 const express = require("express");
 const { isAuth, isAdmin } = require("../middlewares/auth");
 const router = express.Router();
+const multer = require("multer");
+
+const upload = multer({});
 
 //importing the controllers
 const productControllers = require("../controllers/product");
@@ -11,18 +14,15 @@ const {
   isProductRequestValidated,
 } = require("../validators/product");
 
-router.get("/", (req, res) => {
-  return res.status(200).json({ mesage: "fetched all products" });
-});
+router.get("/", productControllers.getAllProduct);
 router.post(
   "/create",
   isAuth,
   isAdmin,
+  upload.any(),
   validateProductCreate,
   isProductRequestValidated,
-  (req, res) => {
-    return res.status(200).json({ mesage: "create New products" });
-  }
+  productControllers.createProduct
 );
 
 module.exports = router;

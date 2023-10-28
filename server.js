@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const bodyParser = require("body-parser");
 
 require("dotenv").config();
 
@@ -9,7 +10,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json());
+// app.use(express.json());
+
+// Use body-parser for form data parsing
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Multer configuration
 const storage = multer.memoryStorage();
@@ -45,6 +50,7 @@ app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/customer/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+
 app.post(
   "/api/v1/files/upload",
   isAuth,

@@ -10,7 +10,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadImages = async (req, res) => {
+const uploadImagesToCloudinary = async (req, res) => {
   try {
     const { files } = req;
 
@@ -45,22 +45,26 @@ const uploadImages = async (req, res) => {
           img: url,
         })) || [];
 
-      return res.status(200).json({
+      return {
         status: 200,
-        message: "Images uploaded successfully to Cloudinary",
+        message: "success",
         data: simplifiedImages,
-      });
+      };
     } else {
-      return res.status(409).json({
+      return {
         status: 409,
         message: "More than 5 image is not allowed",
         data: null,
-      });
+      };
     }
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ error: error });
+    return {
+      status: 500,
+      message: error,
+      data: null,
+    };
   }
 };
 
-module.exports = { uploadImages };
+module.exports = { uploadImagesToCloudinary };

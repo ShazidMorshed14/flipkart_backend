@@ -3,6 +3,7 @@ const slugify = require("slugify");
 //importing the category model
 const Product = require("../models/product");
 const { generateUniqueCode } = require("../utils/utils");
+const { uploadImagesToCloudinary } = require("../utils/file-upload-helper");
 
 const MODEL_NAME = "Product";
 
@@ -24,43 +25,65 @@ const getAllProduct = async (req, res) => {
   }
 };
 
-// const createProduct = async (req, res) => {
-//   try {
-//     const { name, type, categoryImage, parentId } = req.body;
+const createProduct = async (req, res) => {
+  try {
+    const { name, price, description, category } = req.body;
 
-//     const checkCategory = await Category.findOne({ name: req.body.name });
+    const productObj = {
+      name: name,
+      slug: slugify(name),
+      sku: `${slugify(name)}-${generateUniqueCode()}`,
+      price: price ? price : 0,
+      description: description ? description : null,
+      category: category,
+      createdBy: req.user._id,
+    };
 
-//     if (checkCategory) {
-//       return res.status(409).json({ message: "Same Category Already Exists!" });
-//     }
+    const isProductExists = await Product.findOne({ slug: slugify(name) });
 
-//     const categoryObj = {
-//       name: name,
-//       slug: `${slugify(name)}-${generateUniqueCode()}`,
-//       type: type,
-//       categoryImage: categoryImage,
-//       parentId: parentId ? parentId : null,
-//       createdBy: req.user._id,
-//     };
+    if (isProductExists)
+      return res.status(409).json({
+        status: 409,
+        message: "Product Already Exists",
+        data: null,
+      });
 
-//     const newCat = new Category(categoryObj);
+    const productPicturesResponse = await uploadImagesToCloudinary(req, res);
 
-//     await newCat
-//       .save()
-//       .then((categoryData) => {
-//         return res.status(200).json({
-//           status: 200,
-//           message: "Category Created successfully",
-//           data: categoryData,
-//         });
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         return res.status(422).json({ message: err });
-//       });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+    if (productPicturesResponse.status == 200) {
+      productObj.productPictures = productPicturesResponse.data;
+    } else if (productPicturesResponse.status == 409) {
+      return res.status(409).json({
+        status: 409,
+        message: productPicturesResponse.message,
+        data: null,
+      });
+    } else {
+      return res.status(productPicturesResponse.status || 500).json({
+        status: productPicturesResponse.status,
+        message: productPicturesResponse.message,
+        data: null,
+      });
+    }
 
-module.exports = { getAllProduct };
+    const newProduct = new Product(productObj);
+
+    await newProduct
+      .save()
+      .then((productData) => {
+        return res.status(200).json({
+          status: 200,
+          message: "Product Created successfully",
+          data: productData,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(422).json({ message: err });
+      });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = { getAllProduct, createProduct };
