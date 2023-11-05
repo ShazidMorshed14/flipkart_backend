@@ -10,15 +10,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadImagesToCloudinary = async (req, res) => {
+const uploadImagesToCloudinary = async (req, res, limit, dimesion) => {
   try {
     const { files } = req;
 
-    if (files?.length < 6) {
+    let imageQuantity = limit ? limit : 5;
+    let imageDimension = dimesion ? dimesion : 300;
+
+    if (files?.length <= imageQuantity) {
       const uploadPromises = files.map((file) => {
         return new Promise((resolve, reject) => {
           sharp(file.buffer)
-            .resize({ height: 300, width: 300 })
+            .resize({ height: imageDimension, width: imageDimension })
             .toBuffer()
             .then((data) => {
               const stream = cloudinary.uploader.upload_stream(

@@ -3,6 +3,7 @@ const slugify = require("slugify");
 //importing the category model
 const Category = require("../models/category");
 const { generateUniqueCode } = require("../utils/utils");
+const { uploadImagesToCloudinary } = require("../utils/file-upload-helper");
 
 const createCategoryTree = (categories, parentId = null) => {
   let categoryList = [];
@@ -54,7 +55,7 @@ const getAllCategory = async (req, res) => {
 
 const createCategory = async (req, res) => {
   try {
-    const { name, type, categoryImage, parentId } = req.body;
+    const { name, type, parentId } = req.body;
 
     const checkCategory = await Category.findOne({ name: req.body.name });
 
@@ -66,10 +67,34 @@ const createCategory = async (req, res) => {
       name: name,
       slug: `${slugify(name)}-${generateUniqueCode()}`,
       type: type,
-      categoryImage: categoryImage,
       parentId: parentId ? parentId : null,
       createdBy: req.user._id,
     };
+
+    const categoryPictureResponse = await uploadImagesToCloudinary(
+      req,
+      res,
+      1,
+      100
+    );
+
+    if (categoryPictureResponse.status == 200) {
+      categoryObj.categoryImage = categoryPictureResponse?.data[0]?.img
+        ? categoryPictureResponse?.data[0]?.img
+        : null;
+    } else if (categoryPictureResponse.status == 409) {
+      return res.status(409).json({
+        status: 409,
+        message: categoryPictureResponse.message,
+        data: null,
+      });
+    } else {
+      return res.status(categoryPictureResponse.status || 500).json({
+        status: categoryPictureResponse.status,
+        message: categoryPictureResponse.message,
+        data: null,
+      });
+    }
 
     const newCat = new Category(categoryObj);
 

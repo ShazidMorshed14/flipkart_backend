@@ -48,7 +48,12 @@ const createProduct = async (req, res) => {
         data: null,
       });
 
-    const productPicturesResponse = await uploadImagesToCloudinary(req, res);
+    const productPicturesResponse = await uploadImagesToCloudinary(
+      req,
+      res,
+      5,
+      300
+    );
 
     if (productPicturesResponse.status == 200) {
       productObj.productPictures = productPicturesResponse.data;

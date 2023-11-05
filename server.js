@@ -36,6 +36,7 @@ const adminAuthRoutes = require("./routes/admin/auth");
 const authRoutes = require("./routes/auth");
 const categoryRoutes = require("./routes/category");
 const productRoutes = require("./routes/product");
+const cartRoutes = require("./routes/cart");
 
 //importing the file upload controller
 const fileUploader = require("./controllers/file-upload");
@@ -45,6 +46,7 @@ app.use("/api/v1/admin/auth", adminAuthRoutes);
 app.use("/api/v1/customer/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/user/cart", cartRoutes);
 
 app.post(
   "/api/v1/files/upload",
