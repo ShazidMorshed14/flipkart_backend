@@ -28,7 +28,13 @@ const productSchema = new mongoose.Schema(
     offer: {
       type: Number,
     },
-    productPictures: [{ _id: { type: String }, img: { type: String } }],
+    productPictures: [
+      {
+        _id: { type: String },
+        img: { type: String },
+        default: { type: Boolean },
+      },
+    ],
     reviews: [
       {
         userId: { type: ObjectId, ref: "User" },
@@ -43,6 +49,12 @@ const productSchema = new mongoose.Schema(
     createdBy: {
       type: ObjectId,
       ref: "User",
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["active", "deactive"],
+      default: "active",
       required: true,
     },
   },

@@ -43,9 +43,10 @@ const uploadImagesToCloudinary = async (req, res, limit, dimesion) => {
       const uploadedImages = await Promise.all(uploadPromises);
 
       const simplifiedImages =
-        uploadedImages.map(({ asset_id, url }) => ({
+        uploadedImages.map(({ asset_id, url }, index) => ({
           _id: asset_id,
           img: url,
+          default: index == 1 ? true : false,
         })) || [];
 
       return {
