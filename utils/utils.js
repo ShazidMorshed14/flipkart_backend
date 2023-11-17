@@ -35,9 +35,14 @@ const userWeight = {
   customer: 2,
 };
 
+const isArrayAndHasContent = (arr) => {
+  return Array.isArray(arr) && arr.length > 0;
+};
+
 module.exports = {
   generateUniqueCode,
   generateHashedPassword,
   formatPhoneNumber,
   userWeight,
+  isArrayAndHasContent,
 };

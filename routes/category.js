@@ -15,6 +15,7 @@ const {
 } = require("../validators/category");
 
 router.get("/", categoryControllers.getAllCategory);
+router.get("/list", categoryControllers.getAllCategoryList);
 router.post(
   "/create",
   isAuth,
@@ -23,6 +24,15 @@ router.post(
   ValidateCategoryCreate,
   isCategoryRequestValidated,
   categoryControllers.createCategory
+);
+router.put(
+  "/update/:id",
+  isAuth,
+  isAdmin,
+  upload.any(),
+  ValidateCategoryCreate,
+  isCategoryRequestValidated,
+  categoryControllers.editCategory
 );
 
 module.exports = router;
