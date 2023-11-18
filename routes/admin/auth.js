@@ -10,6 +10,7 @@ const {
   isRequestValidated,
   validateSigninRequest,
 } = require("../../validators/auth");
+const { isAuth, isAdmin } = require("../../middlewares/auth");
 
 router.post(
   "/signup",
@@ -23,5 +24,7 @@ router.post(
   isRequestValidated,
   authControllers.signin
 );
+
+router.get("/admins", isAuth, isAdmin, authControllers.getAllAdmins);
 
 module.exports = router;

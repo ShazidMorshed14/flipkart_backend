@@ -10,15 +10,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadImages = async (req, res) => {
+const uploadImagesToCloudinary = async (req, res, limit, dimesion) => {
   try {
     const { files } = req;
 
-    if (files?.length < 6) {
+    let imageQuantity = limit ? limit : 5;
+    let imageDimension = dimesion ? dimesion : 300;
+
+    if (files?.length <= imageQuantity) {
       const uploadPromises = files.map((file) => {
         return new Promise((resolve, reject) => {
           sharp(file.buffer)
-            .resize({ height: 300, width: 300 })
+            .resize({ height: imageDimension, width: imageDimension })
             .toBuffer()
             .then((data) => {
               const stream = cloudinary.uploader.upload_stream(
@@ -40,27 +43,32 @@ const uploadImages = async (req, res) => {
       const uploadedImages = await Promise.all(uploadPromises);
 
       const simplifiedImages =
-        uploadedImages.map(({ asset_id, url }) => ({
+        uploadedImages.map(({ asset_id, url }, index) => ({
           _id: asset_id,
           img: url,
+          default: index == 1 ? true : false,
         })) || [];
 
-      return res.status(200).json({
+      return {
         status: 200,
-        message: "Images uploaded successfully to Cloudinary",
+        message: "success",
         data: simplifiedImages,
-      });
+      };
     } else {
-      return res.status(409).json({
+      return {
         status: 409,
         message: "More than 5 image is not allowed",
         data: null,
-      });
+      };
     }
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ error: error });
+    return {
+      status: 500,
+      message: error,
+      data: null,
+    };
   }
 };
 
-module.exports = { uploadImages };
+module.exports = { uploadImagesToCloudinary };

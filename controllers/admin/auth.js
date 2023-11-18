@@ -8,6 +8,92 @@ const {
   userWeight,
 } = require("../../utils/utils");
 
+const model_name = "User";
+
+const getAllAdmins = async (req, res) => {
+  try {
+    const issuer_weight = req.user.user_weight;
+    let { page, pageSize, pageLess, searchkey, phone, email, role } = req.query;
+
+    page = page ? parseInt(page) : 1;
+    pageSize = pageSize ? parseInt(pageSize) : 10;
+
+    let query = {};
+    let totalCount = 0;
+
+    if (issuer_weight) {
+      query.user_weight = { $lt: issuer_weight };
+    }
+
+    query.role = { $ne: "customer" };
+
+    if (role) {
+      query.role = role;
+    }
+
+    if (email) {
+      query.email = { $regex: email, $options: "i" };
+    }
+
+    if (phone) {
+      if (phone.startsWith("+")) {
+        phone = phone.substring(1); // Remove the leading "+"
+      }
+      query.phone = { $regex: phone, $options: "i" };
+    }
+
+    if (searchkey) {
+      query.name = { $regex: searchkey, $options: "i" };
+      query.username = { $regex: searchkey, $options: "i" };
+    }
+
+    if (pageLess) {
+      // If pageLess is true, return all patients
+      const users = await User.find(query).select(
+        "_id name username email phone image role status createdAt updatedAt"
+      );
+      totalCount = users.length;
+
+      if (pageLess !== undefined && pageLess === "true") {
+        return res.status(200).json({
+          status: 200,
+          message: "Admins fetched successfully!",
+          data: {
+            users: users,
+            total: totalCount,
+          },
+        });
+      }
+    } else {
+      // If pageLess is false or not provided, apply pagination
+      const skip = (parseInt(page) - 1) * parseInt(pageSize);
+      const limit = parseInt(pageSize);
+
+      const paginatedAdmins = await User.find(query)
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select(
+          "_id name username email phone image role status createdAt updatedAt"
+        );
+
+      totalCount = await User.countDocuments(query);
+
+      return res.status(200).json({
+        status: 200,
+        message: `${model_name} fetched successfully!`,
+        data: {
+          users: paginatedAdmins,
+          total: totalCount,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching admins:", error);
+    res.status(500).json({ error: "Error fetching admins" });
+  }
+};
+
 const signup = async (req, res) => {
   try {
     const { name, email, phone, image, password, role } = req.body;
@@ -102,4 +188,4 @@ const signin = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin };
+module.exports = { signup, signin, getAllAdmins };
