@@ -18,7 +18,7 @@ const uploadImages = async (req, res) => {
       const uploadPromises = files.map((file) => {
         return new Promise((resolve, reject) => {
           sharp(file.buffer)
-            .resize({ height: 300, width: 300 })
+            // .resize({ height: 300, width: 300 })
             .toBuffer()
             .then((data) => {
               const stream = cloudinary.uploader.upload_stream(
